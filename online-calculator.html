@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
   <style>
     :root {
-      font-size: clamp(14px, 4vw, 16px); /* Responsive base font size */
+      font-size: clamp(14px, 4vw, 16px);
       --bg-color: #FDF6E3;
       --text-color: #2E2E2E;
       --accent-color: #C2A661;
@@ -55,20 +55,26 @@
       flex-direction: column;
       align-items: center;
       width: 90%;
-      max-width: clamp(20rem, 80vw, 28rem); /* Responsive width */
+      max-width: clamp(20rem, 80vw, 28rem);
       padding: clamp(0.75rem, 2vw, 1rem);
       gap: clamp(0.5rem, 1.5vw, 1rem);
-      background-color: rgba(253, 246, 227, 0.8);
+      background-color: var(--bg-color);
       border-radius: 1rem;
-    }
-
-    .dark-theme .container {
-      background-color: rgba(30, 30, 30, 0.8);
     }
 
     .calculator {
       background-color: var(--card-bg);
       padding: clamp(0.75rem, 2vw, 1.25rem);
+      border-radius: 0.75rem;
+      box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.1);
+      width: 100%;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .converter-container {
+      background-color: var(--card-bg);
+      padding: clamp(1rem, 2vw, 1.5rem);
       border-radius: 0.75rem;
       box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.1);
       width: 100%;
@@ -159,6 +165,31 @@
       background-color: var(--button-active);
     }
 
+    .back-button {
+      display: block;
+      padding: clamp(0.75rem, 2vw, 1rem);
+      font-size: clamp(1rem, 3vw, 1.125rem);
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .back-button:hover {
+      background-color: var(--accent-color);
+      color: var(--card-bg);
+      transform: scale(1.02);
+    }
+
+    .back-button:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 2px;
+    }
+
     .setting-container {
       width: 100%;
       display: grid;
@@ -223,7 +254,7 @@
       .display {
         font-size: 1.25rem;
       }
-      button {
+      button, .back-button {
         padding: 0.5rem;
         font-size: 1rem;
       }
@@ -235,7 +266,6 @@
       }
     }
 
-    /* Ripple effect */
     .ripple {
       position: absolute;
       border-radius: 50%;
@@ -293,6 +323,10 @@
           <i class="fas fa-plus"></i>
         </button>
       </div>
+    </div>
+
+    <div class="converter-container">
+      <a href="index.html" class="back-button" data-i18n="back">Back to LinkHub</a>
     </div>
 
     <div class="setting-container">
@@ -357,7 +391,8 @@
         "language-label": "Language:",
         "theme-light": "Light",
         "theme-dark": "Dark",
-        "lang-name": "English"
+        "lang-name": "English",
+        "back": "Back to LinkHub" // Added
       },
       id: {
         "title": "Kalkulator Online - SynthCode",
@@ -365,7 +400,8 @@
         "language-label": "Bahasa:",
         "theme-light": "Terang",
         "theme-dark": "Gelap",
-        "lang-name": "Indonesia"
+        "lang-name": "Indonesia",
+        "back": "Kembali ke LinkHub" // Added
       }
     };
 
@@ -457,6 +493,7 @@
     }
 
     function updateLanguage() {
+      document.documentElement.lang = currentLang; // Update HTML lang attribute
       const t = translations[currentLang];
       const isDark = body.classList.contains('dark-theme');
 
