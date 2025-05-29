@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="title">BMI Calculator - SynthCode</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <style>
+    :root {
+      font-size: clamp(14px, 4vw, 16px);
+      --bg-color: #FDF6E3;
+      --text-color: #2E2E2E;
+      --accent-color: #C2A661;
+      --secondary-accent: #7D9273;
+      --error-color: #781C30;
+      --card-bg: #FFFDF6;
+      --border-color: #E2DCC7;
+      --button-active: #B09556;
+      --operator-active: #6C8163;
+    }
+
+    .dark-theme {
+      --bg-color: #1E1E1E;
+      --text-color: #ECE3D5;
+      --accent-color: #C2A661;
+      --secondary-accent: #A8B99F;
+      --error-color: #C75C5C;
+      --card-bg: #2A2A2A;
+      --border-color: #3B3B3B;
+      --button-active: #D4B96A;
+      --operator-active: #8FA085;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif, Arial, Helvetica;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      line-height: 1.4;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 90%;
+      max-width: clamp(20rem, 80vw, 28rem);
+      padding: clamp(0.75rem, 2vw, 1rem);
+      gap: clamp(0.5rem, 1.5vw, 1rem); /* Fixed typo */
+      background-color: rgba(253, 246, 227, 0.8);
+      border-radius: 1rem;
+    }
+
+    .dark-theme .container {
+      background-color: rgba(30, 30, 30, 0.8);
+    }
+
+    .calculator {
+      background-color: var(--card-bg);
+      padding: clamp(0.75rem, 2vw, 1.25rem);
+      border-radius: 0.75rem;
+      box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.1);
+      width: 100%;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .display {
+      width: 100%;
+      height: clamp(3rem, 8vw, 4rem);
+      margin-bottom: clamp(0.5rem, 1.5vw, 1rem);
+      font-size: clamp(1.25rem, 4vw, 1.75rem);
+      text-align: right;
+      padding: clamp(0.5rem, 1.5vw, 0.625rem) 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .display:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(194, 166, 97, 0.2);
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(0.5rem, 1.5vw, 0.75rem);
+    }
+
+    button {
+      padding: clamp(0.75rem, 2vw, 1rem);
+      font-size: clamp(1rem, 3vw, 1.125rem);
+      font-weight: 500;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    button:hover {
+      background-color: var(--accent-color);
+      color: var(--card-bg);
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 2px;
+    }
+
+    .operator {
+      background-color: var(--secondary-accent);
+      color: var(--card-bg);
+    }
+
+    .operator:hover {
+      background-color: var(--operator-active);
+    }
+
+    .clear {
+      background-color: var(--error-color);
+      color: var(--card-bg);
+    }
+
+    .clear:hover {
+      background-color: #8A1422;
+    }
+
+    .equals {
+      background-color: var(--accent-color);
+      color: var(--card-bg);
+    }
+
+    .equals:hover {
+      background-color: var(--button-active);
+    }
+
+    .setting-container {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(0.5rem, 1.5vw, 0.75rem);
+      background-color: var(--card-bg);
+      padding: clamp(0.75rem, 2vw, 1rem);
+      border-radius: 0.75rem;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.05);
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      gap: clamp(0.5rem, 1.5vw, 0.75rem);
+    }
+
+    .theme-toggle, .lang-toggle {
+      width: clamp(2.25rem, 5vw, 2.75rem);
+      height: clamp(2.25rem, 5vw, 2.75rem);
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      font-size: clamp(1rem, 3vw, 1.25rem);
+      cursor: pointer;
+      color: var(--text-color);
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-toggle:hover, .lang-toggle:hover {
+      background-color: var(--accent-color);
+      color: var(--card-bg);
+      border-radius: 0.75rem;
+    }
+
+    .theme-info, .lang-info {
+      font-size: clamp(0.75rem, 2vw, 0.875rem);
+      font-weight: 500;
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        width: 95%;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        padding: 0.5rem;
+      }
+      .buttons {
+        gap: 0.5rem;
+      }
+      .display {
+        font-size: 1.25rem;
+      }
+      button {
+        padding: 0.5rem;
+        font-size: 1rem;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .container {
+        max-width: 32rem;
+      }
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.4);
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    .input-group {
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      font-size: clamp(0.875rem, 2vw, 1rem);
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      height: 2.5rem;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 1rem;
+      line-height: 1;
+      box-sizing: border-box;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(194, 166, 97, 0.2);
+    }
+
+    .height-imperial-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(0.5rem, 1.5vw, 0.75rem);
+      margin-bottom: 1rem;
+    }
+
+    .height-imperial-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      font-size: clamp(0.875rem, 2vw, 1rem);
+      text-align: left;
+    }
+
+    .height-imperial-group input {
+      width: 100%;
+      height: 2.5rem;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 1rem;
+      line-height: 1;
+      box-sizing: border-box;
+    }
+
+    .height-imperial-group input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(194, 166, 97, 0.2);
+    }
+
+    @media (max-width: 400px) {
+      .input-group input,
+      .input-group select,
+      .height-imperial-group input {
+        height: 2.25rem;
+        font-size: 0.875rem;
+        padding: 0.5rem;
+      }
+      .input-group label,
+      .height-imperial-group label {
+        font-size: 0.875rem;
+      }
+      .height-imperial-group {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+      }
+    }
+
+    .error-message {
+      color: var(--error-color);
+      margin-top: 0.5rem;
+      font-size: clamp(0.75rem, 2vw, 0.875rem);
+      display: none;
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      background-color: var(--secondary-accent);
+      color: var(--card-bg);
+    }
+
+    .result h3 {
+      margin-bottom: 0.5rem;
+    }
+
+    .bmi-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .bmi-category,
+    .bmi-note {
+      font-weight: 500;
+      margin-top: 0.5rem;
+    }
+
+    .unit-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .unit-toggle button {
+      flex: 1;
+      padding: 0.5rem;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .unit-toggle button.active {
+      background-color: var(--accent-color);
+      color: var(--card-bg);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="calculator">
+      <h2 data-i18n="bmi_calculator">BMI Calculator</h2><br>
+      
+      <div class="unit-toggle">
+        <button id="metricBtn" class="active" data-i18n="metric_units" aria-label="Use metric units">Metric</button>
+        <button id="imperialBtn" data-i18n="imperial_units" aria-label="Use imperial units">Imperial</button>
+      </div>
+      
+      <div class="input-group">
+        <label for="age" data-i18n="age">Age</label>
+        <input type="number" id="age" placeholder="Enter age" min="2" max="120" step="1" data-i18n-placeholder="enter_age" aria-label="Age in years" aria-describedby="errorMessage">
+      </div>
+      <div class="input-group">
+        <label for="gender" data-i18n="gender">Gender</label>
+        <select id="gender" aria-label="Select gender">
+          <option value="male" data-i18n="male">Male</option>
+          <option value="female" data-i18n="female">Female</option>
+        </select>
+      </div>
+      
+      <div id="metricInputs">
+        <div class="input-group">
+          <label for="heightCm" data-i18n="height_cm">Height (cm)</label>
+          <input type="number" id="heightCm" placeholder="Enter height in cm" min="100" max="250" step="0.1" data-i18n-placeholder="enter_height_cm" aria-label="Height in centimeters" aria-describedby="errorMessage">
+        </div>
+        <div class="input-group">
+          <label for="weightKg" data-i18n="weight_kg">Weight (kg)</label>
+          <input type="number" id="weightKg" placeholder="Enter weight in kg" min="30" max="300" step="0.1" data-i18n-placeholder="enter_weight_kg" aria-label="Weight in kilograms" aria-describedby="errorMessage">
+        </div>
+      </div>
+      
+      <div id="imperialInputs" style="display: none;">
+        <div class="height-imperial-group">
+          <div>
+            <label for="heightFt" data-i18n="height_ft">Height (ft)</label>
+            <input type="number" id="heightFt" placeholder="Feet" min="3" max="8" step="1" data-i18n-placeholder="feet" aria-label="Height in feet" aria-describedby="errorMessage">
+          </div>
+          <div>
+            <label for="heightIn" data-i18n="height_in">Height (in)</label>
+            <input type="number" id="heightIn" placeholder="Inches" min="0" max="11" step="0.1" data-i18n-placeholder="inches" aria-label="Height in inches" aria-describedby="errorMessage">
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="weightLbs" data-i18n="weight_lbs">Weight (lbs)</label>
+          <input type="number" id="weightLbs" placeholder="Enter weight in lbs" min="50" max="700" step="0.1" data-i18n-placeholder="enter_weight_lbs" aria-label="Weight in pounds" aria-describedby="errorMessage">
+        </div>
+      </div>
+      
+      <div id="errorMessage" class="error-message" aria-live="polite"></div>
+      
+      <button id="calculateBtn" class="equals" style="width: 100%; margin-top: 0.5rem;" data-i18n="calculate_bmi" aria-label="Calculate BMI">Calculate BMI</button>
+      <button id="resetBtn" class="clear" style="width: 100%; margin-top: 0.5rem;" data-i18n="reset" aria-label="Reset inputs and results">Reset</button>
+      
+      <div id="result" class="result" style="display: none;" aria-live="polite">
+        <h3 data-i18n="your_bmi_result">Your BMI Result</h3>
+        <div class="bmi-value" id="bmiValue">--</div>
+        <div class="bmi-category" id="bmiCategory">--</div>
+        <div class="bmi-note" id="bmiNote"></div>
+      </div>
+    </div>
+
+    <div class="setting-container">
+      <div class="setting-item">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <i class="fas fa-moon"></i>
+          <span class="sr-only">Toggle theme</span>
+        </button>
+        <div class="theme-info">
+          <span data-i18n="theme">Theme</span>
+          <strong id="themeStatus" data-i18n="light">Light</strong>
+        </div>
+      </div>
+      <div class="setting-item">
+        <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
+          <i class="fas fa-language"></i>
+          <span class="sr-only">Toggle language</span>
+        </button>
+        <div class="lang-info">
+          <span data-i18n="language">Language</span>
+          <strong id="langStatus" data-i18n="english">English</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Cache DOM elements
+    const elements = {
+      themeToggle: document.getElementById('themeToggle'),
+      themeStatus: document.getElementById('themeStatus'),
+      langToggle: document.getElementById('langToggle'),
+      langStatus: document.getElementById('langStatus'),
+      metricBtn: document.getElementById('metricBtn'),
+      imperialBtn: document.getElementById('imperialBtn'),
+      metricInputs: document.getElementById('metricInputs'),
+      imperialInputs: document.getElementById('imperialInputs'),
+      age: document.getElementById('age'),
+      gender: document.getElementById('gender'),
+      heightCm: document.getElementById('heightCm'),
+      weightKg: document.getElementById('weightKg'),
+      heightFt: document.getElementById('heightFt'),
+      heightIn: document.getElementById('heightIn'),
+      weightLbs: document.getElementById('weightLbs'),
+      calculateBtn: document.getElementById('calculateBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      errorMessage: document.getElementById('errorMessage'),
+      resultDiv: document.getElementById('result'),
+      bmiValue: document.getElementById('bmiValue'),
+      bmiCategory: document.getElementById('bmiCategory'),
+      bmiNote: document.getElementById('bmiNote')
+    };
+
+    // Cache translatable elements
+    const translatableElements = {
+      i18n: document.querySelectorAll('[data-i18n]'),
+      placeholders: document.querySelectorAll('[data-i18n-placeholder]')
+    };
+
+    // Check for missing elements
+    Object.keys(elements).forEach(key => {
+      if (!elements[key]) console.error(`Element not found: ${key}`);
+    });
+
+    // Translation dictionary
+    const translations = {
+      en: {
+        bmi_calculator: "BMI Calculator",
+        title: "BMI Calculator - SynthCode",
+        metric_units: "Metric",
+        imperial_units: "Imperial",
+        age: "Age",
+        enter_age: "Enter age",
+        gender: "Gender",
+        male: "Male",
+        female: "Female",
+        height_cm: "Height (cm)",
+        enter_height_cm: "Enter height in cm",
+        weight_kg: "Weight (kg)",
+        enter_weight_kg: "Enter weight in kg",
+        height_ft: "Height (ft)",
+        feet: "Feet",
+        height_in: "Height (in)",
+        inches: "Inches",
+        weight_lbs: "Weight (lbs)",
+        enter_weight_lbs: "Enter weight in lbs",
+        calculate_bmi: "Calculate BMI",
+        calculating: "Calculating...",
+        reset: "Reset",
+        your_bmi_result: "Your BMI Result",
+        theme: "Theme",
+        light: "Light",
+        dark: "Dark",
+        language: "Language",
+        english: "English",
+        indonesian: "Indonesian",
+        enter_valid_numbers: "Please enter valid numbers",
+        positive_values_only: "Height and weight must be positive",
+        invalid_age: "Please enter a valid age (2–120)",
+        metric_out_of_range: "Height must be 100–250 cm and weight 30–300 kg",
+        imperial_out_of_range: "Height must be 3–8 ft and weight 50–700 lbs",
+        underweight: "Underweight",
+        normal_weight: "Normal weight",
+        overweight: "Overweight",
+        obese: "Obese",
+        child_note: "For ages under 18, BMI percentiles are needed. Consult a doctor.",
+        elderly_note: "For ages 65+, consult a doctor for BMI interpretation.",
+        male_muscle_note: "Men with high muscle mass may have a higher BMI.",
+        female_note: "BMI may vary due to body composition."
+      },
+      id: {
+        bmi_calculator: "Kalkulator BMI",
+        title: "Kalkulator BMI - SynthCode",
+        metric_units: "Metrik",
+        imperial_units: "Imperial",
+        age: "Usia",
+        enter_age: "Masukkan usia",
+        gender: "Jenis Kelamin",
+        male: "Laki-laki",
+        female: "Perempuan",
+        height_cm: "Tinggi (cm)",
+        enter_height_cm: "Masukkan tinggi dalam cm",
+        weight_kg: "Berat (kg)",
+        enter_weight_kg: "Masukkan berat dalam kg",
+        height_ft: "Tinggi (ft)",
+        feet: "Kaki",
+        height_in: "Tinggi (in)",
+        inches: "Inci",
+        weight_lbs: "Berat (lbs)",
+        enter_weight_lbs: "Masukkan berat dalam lbs",
+        calculate_bmi: "Hitung BMI",
+        calculating: "Menghitung...",
+        reset: "Atur Ulang",
+        your_bmi_result: "Hasil BMI Anda",
+        theme: "Tema",
+        light: "Terang",
+        dark: "Gelap",
+        language: "Bahasa",
+        english: "Inggris",
+        indonesian: "Indonesia",
+        enter_valid_numbers: "Harap masukkan angka yang valid",
+        positive_values_only: "Tinggi dan berat harus positif",
+        invalid_age: "Harap masukkan usia yang valid (2–120)",
+        metric_out_of_range: "Tinggi harus 100–250 cm dan berat 30–300 kg",
+        imperial_out_of_range: "Tinggi harus 3–8 kaki dan berat 50–700 lbs",
+        underweight: "Kurus",
+        normal_weight: "Berat normal",
+        overweight: "Kelebihan berat",
+        obese: "Obesitas",
+        child_note: "Untuk usia di bawah 18 tahun, diperlukan persentil BMI. Konsultasikan dengan dokter.",
+        elderly_note: "Untuk usia 65+, konsultasikan dengan dokter untuk interpretasi BMI.",
+        male_muscle_note: "Pria dengan massa otot tinggi mungkin memiliki BMI lebih tinggi.",
+        female_note: "BMI dapat bervariasi karena komposisi tubuh."
+      }
+    };
+
+    // State variables
+    let currentLang = localStorage.getItem('language') || 'en';
+    let isCalculating = false;
+
+    // Functions
+    function getTranslation(key) {
+      return translations[currentLang][key] || translations['en'][key] || key;
+    }
+
+    function applyTranslations() {
+      translatableElements.i18n.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = getTranslation(key);
+      });
+      translatableElements.placeholders.forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.setAttribute('placeholder', getTranslation(key));
+      });
+      document.title = getTranslation('title');
+      elements.langStatus.textContent = getTranslation(currentLang === 'en' ? 'english' : 'indonesian');
+      elements.themeStatus.textContent = document.body.classList.contains('dark-theme') ? 
+        getTranslation('dark') : getTranslation('light');
+    }
+
+    function validateInputs(height, weight, age, isMetric) {
+      if (!age || isNaN(age) || age < 2 || age > 120) {
+        return getTranslation('invalid_age');
+      }
+      if (!height || !weight || isNaN(height) || isNaN(weight)) {
+        return getTranslation('enter_valid_numbers');
+      }
+      if (height <= 0 || weight <= 0) {
+        return getTranslation('positive_values_only');
+      }
+      if (isMetric) {
+        if (height < 100 || height > 250 || weight < 30 || weight > 300) {
+          return getTranslation('metric_out_of_range');
+        }
+      } else {
+        if (height < 36 || height > 96 || weight < 50 || weight > 700) {
+          return getTranslation('imperial_out_of_range');
+        }
+      }
+      return null;
+    }
+
+    function toggleUnit(unit) {
+      elements.metricBtn.classList.toggle('active', unit === 'metric');
+      elements.imperialBtn.classList.toggle('active', unit === 'imperial');
+      elements.metricInputs.style.display = unit === 'metric' ? 'block' : 'none';
+      elements.imperialInputs.style.display = unit === 'imperial' ? 'block' : 'none';
+      localStorage.setItem('unit', unit);
+      elements.errorMessage.style.display = 'none';
+      elements.resultDiv.style.display = 'none';
+    }
+
+    function resetForm() {
+      elements.age.value = '';
+      elements.gender.value = 'male';
+      elements.heightCm.value = '';
+      elements.weightKg.value = '';
+      elements.heightFt.value = '';
+      elements.heightIn.value = '';
+      elements.weightLbs.value = '';
+      elements.resultDiv.style.display = 'none';
+      elements.bmiValue.textContent = '--';
+      elements.bmiCategory.textContent = '--';
+      elements.bmiNote.textContent = '';
+      elements.errorMessage.style.display = 'none';
+      elements.errorMessage.textContent = '';
+    }
+
+    // Event Listeners
+    elements.themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-theme');
+      const isDark = document.body.classList.contains('dark-theme');
+      elements.themeStatus.textContent = getTranslation(isDark ? 'dark' : 'light');
+      elements.themeToggle.querySelector('i').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      applyTranslations();
+    });
+
+    elements.langToggle.addEventListener('click', () => {
+      currentLang = currentLang === 'en' ? 'id' : 'en';
+      localStorage.setItem('language', currentLang);
+      elements.langStatus.textContent = getTranslation(currentLang === 'en' ? 'english' : 'indonesian');
+      applyTranslations();
+    });
+
+    elements.metricBtn.addEventListener('click', () => toggleUnit('metric'));
+    elements.imperialBtn.addEventListener('click', () => toggleUnit('imperial'));
+
+    elements.calculateBtn.addEventListener('click', () => {
+      if (isCalculating) return;
+      isCalculating = true;
+      elements.calculateBtn.disabled = true;
+      elements.calculateBtn.textContent = getTranslation('calculating');
+      elements.errorMessage.style.display = 'none';
+      elements.errorMessage.textContent = '';
+
+      setTimeout(() => {
+        const age = parseFloat(elements.age.value) || NaN;
+        const gender = elements.gender.value;
+        let bmi;
+
+        if (elements.metricBtn.classList.contains('active')) {
+          const heightCm = parseFloat(elements.heightCm.value) || NaN;
+          const weightKg = parseFloat(elements.weightKg.value) || NaN;
+          const error = validateInputs(heightCm, weightKg, age, true);
+          if (error) {
+            elements.errorMessage.textContent = error;
+            elements.errorMessage.style.display = 'block';
+            elements.calculateBtn.disabled = false;
+            elements.calculateBtn.textContent = getTranslation('calculate_bmi');
+            isCalculating = false;
+            return;
+          }
+          const heightM = heightCm / 100;
+          bmi = weightKg / (heightM * heightM);
+        } else {
+          const heightFt = parseFloat(elements.heightFt.value) || NaN;
+          const heightIn = parseFloat(elements.heightIn.value) || 0;
+          const weightLbs = parseFloat(elements.weightLbs.value) || NaN;
+          const totalInches = heightFt * 12 + heightIn;
+          const error = validateInputs(totalInches, weightLbs, age, false);
+          if (error) {
+            elements.errorMessage.textContent = error;
+            elements.errorMessage.style.display = 'block';
+            elements.calculateBtn.disabled = false;
+            elements.calculateBtn.textContent = getTranslation('calculate_bmi');
+            isCalculating = false;
+            return;
+          }
+          bmi = (weightLbs / (totalInches * totalInches)) * 703;
+        }
+
+        elements.bmiValue.textContent = Math.round(bmi * 10) / 10;
+        elements.resultDiv.style.display = 'block';
+
+        if (bmi < 18.5) {
+          elements.bmiCategory.textContent = getTranslation('underweight');
+        } else if (bmi >= 18.5 && bmi < 25) {
+          elements.bmiCategory.textContent = getTranslation('normal_weight');
+        } else if (bmi >= 25 && bmi < 30) {
+          elements.bmiCategory.textContent = getTranslation('overweight');
+        } else {
+          elements.bmiCategory.textContent = getTranslation('obese');
+        }
+
+        if (age < 18) {
+          elements.bmiNote.textContent = getTranslation('child_note');
+        } else if (age >= 65) {
+          elements.bmiNote.textContent = getTranslation('elderly_note');
+        } else if (gender === 'male') {
+          elements.bmiNote.textContent = getTranslation('male_muscle_note');
+        } else {
+          elements.bmiNote.textContent = getTranslation('female_note');
+        }
+
+        elements.calculateBtn.disabled = false;
+        elements.calculateBtn.textContent = getTranslation('calculate_bmi');
+        isCalculating = false;
+      }, 300);
+    });
+
+    elements.resetBtn.addEventListener('click', resetForm);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && document.activeElement !== elements.calculateBtn) {
+        elements.calculateBtn.click();
+      }
+    });
+
+    document.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', function(e) {
+        if (this.disabled) return;
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+
+        this.appendChild(ripple);
+
+        setTimeout(() => {
+          ripple.remove();
+        }, 600);
+      });
+    });
+
+    // Initialize
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark-theme');
+      elements.themeStatus.textContent = getTranslation('dark');
+      elements.themeToggle.querySelector('i').className = 'fas fa-sun';
+    }
+
+    if (localStorage.getItem('unit') === 'imperial') {
+      toggleUnit('imperial');
+    }
+
+    if (localStorage.getItem('language')) {
+      currentLang = localStorage.getItem('language');
+      elements.langStatus.textContent = getTranslation(currentLang === 'en' ? 'english' : 'indonesian');
+    }
+
+    applyTranslations();
+  </script>
+</body>
+</html>
