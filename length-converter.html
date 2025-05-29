@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n-title="web-title">Length Converter - LinkHub by SynthCode</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <style>
+    :root {
+      font-size: clamp(14px, 4vw, 16px);
+      --bg-color: #FDF6E3;
+      --text-color: #2E2E2E;
+      --accent-color: #C2A661;
+      --secondary-accent: #7D9273;
+      --card-bg: #FFFDF6;
+      --border-color: #E2DCC7;
+      --button-active: #B09556;
+      --input-bg: #FFF;
+      --input-border: #D3D3D3;
+    }
+
+    .dark-theme {
+      --bg-color: #1E1E1E;
+      --text-color: #ECE3D5;
+      --accent-color: #C2A661;
+      --secondary-accent: #A8B99F;
+      --card-bg: #2A2A2A;
+      --border-color: #3B3B3B;
+      --button-active: #D4B96A;
+      --input-bg: #333;
+      --input-border: #555;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      line-height: 1.4;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 90%;
+      max-width: clamp(20rem, 80vw, 28rem);
+      padding: clamp(0.75rem, 2vw, 1rem);
+      gap: clamp(0.5rem, 1.5vw, 1rem);
+      background-color: var(--bg-color);
+      border-radius: 1rem;
+    }
+
+    .converter-container {
+      background-color: var(--card-bg);
+      padding: clamp(1rem, 2vw, 1.5rem);
+      border-radius: 0.75rem;
+      box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.1);
+      width: 100%;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .title-container {
+      padding: clamp(0.75rem, 2vw, 1rem);
+      font-size: clamp(1.125rem, 3vw, 1.25rem);
+      font-weight: 600;
+      border-radius: 0.5rem;
+      background-color: var(--accent-color);
+      color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .input-group, .output-group {
+      margin: 1rem 0;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    input[type="number"], select {
+      padding: clamp(0.5rem, 1.5vw, 0.75rem);
+      font-size: clamp(0.875rem, 2.5vw, 1rem);
+      border: 1px solid var(--input-border);
+      border-radius: 0.5rem;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+      transition: all 0.2s ease;
+    }
+
+    input[type="number"]:focus, select:focus {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 2px;
+    }
+
+    .result {
+      font-size: clamp(1rem, 3vw, 1.125rem);
+      font-weight: 500;
+      margin-top: 1rem;
+      color: var(--text-color);
+    }
+
+    .swap-button {
+      padding: clamp(0.5rem, 1.5vw, 0.75rem);
+      font-size: clamp(0.875rem, 2.5vw, 1rem);
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      color: var(--text-color);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0.5rem auto;
+    }
+
+    .swap-button:hover {
+      background-color: var(--accent-color);
+      color: var(--card-bg);
+    }
+
+    .setting-container {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(0.5rem, 1.5vw, 0.75rem);
+      background-color: var(--card-bg);
+      padding: clamp(0.75rem, 2vw, 1rem);
+      border-radius: 0.75rem;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 0.25rem 0.625rem rgba(0, 0, 0, 0.05);
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      gap: clamp(0.5rem, 1.5vw, 0.75rem);
+    }
+
+    .theme-toggle, .lang-toggle {
+      width: clamp(2.25rem, 5vw, 2.75rem);
+      height: clamp(2.25rem, 5vw, 2.75rem);
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      font-size: clamp(1rem, 3vw, 1.25rem);
+      cursor: pointer;
+      color: var(--text-color);
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-toggle:hover, .lang-toggle:hover {
+      background-color: var(--accent-color);
+      color: var(--card-bg);
+      border-radius: 0.75rem;
+    }
+
+    .theme-info, .lang-info {
+      font-size: clamp(0.75rem, 2vw, 0.875rem);
+      font-weight: 500;
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .back-button {
+      display: block;
+      padding: clamp(0.75rem, 2vw, 1rem);
+      font-size: clamp(1rem, 3vw, 1.125rem);
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .back-button:hover {
+      background-color: var(--accent-color);
+      color: var(--card-bg);
+      transform: scale(1.02);
+    }
+
+    .back-button:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        width: 95%;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        padding: 0.5rem;
+      }
+      input[type="number"], select, .swap-button {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .container {
+        max-width: 32rem;
+      }
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.4);
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="converter-container">
+      <h2 class="title-container" data-i18n="title">Length Converter</h2>
+      <div class="input-group">
+        <label for="input-value" data-i18n="input-label">Enter value:</label>
+        <input type="number" id="input-value" step="any" placeholder="Enter value" />
+        <select id="input-unit">
+          <option value="mm" data-i18n="mm">Millimeter (mm)</option>
+          <option value="cm" data-i18n="cm">Centimeter (cm)</option>
+          <option value="in" data-i18n="in">Inch (in)</option>
+          <option value="dm" data-i18n="dm">Decimeter (dm)</option>
+          <option value="ft" data-i18n="ft">Foot (ft)</option>
+          <option value="m" data-i18n="m">Meter (m)</option>
+          <option value="km" data-i18n="km">Kilometer (km)</option>
+        </select>
+      </div>
+      <button class="swap-button" onclick="swapUnits()" aria-label="Swap units"><i class="fa-solid fa-arrow-down-up-across-line"></i><span style="margin-left: 0.5rem; font-weight: 600;" data-i18n="switch">Switch</span></button>
+      <div class="output-group">
+        <label for="output-unit" data-i18n="output-label">Convert to:</label>
+        <select id="output-unit">
+          <option value="mm" data-i18n="mm">Millimeter (mm)</option>
+          <option value="cm" data-i18n="cm">Centimeter (cm)</option>
+          <option value="in" data-i18n="in">Inch (in)</option>
+          <option value="dm" data-i18n="dm">Decimeter (dm)</option>
+          <option value="ft" data-i18n="ft">Foot (ft)</option>
+          <option value="m" data-i18n="m">Meter (m)</option>
+          <option value="km" data-i18n="km">Kilometer (km)</option>
+        </select>
+        <div class="result" id="result" data-i18n="result-placeholder" aria-live="polite">Result will appear here</div>
+      </div>
+    </div>
+
+    <div class="converter-container">
+      <a href="index.html" class="back-button" data-i18n="back">Back to LinkHub</a>
+    </div>
+
+    <div class="setting-container">
+      <div class="setting-item">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
+          <i class="fas fa-moon"></i>
+        </button>
+        <span class="theme-info">
+          <span data-i18n="theme-label">Theme</span>
+          <strong class="theme-value">Light</strong>
+        </span>
+      </div>
+      <div class="setting-item">
+        <button class="lang-toggle" onclick="toggleLanguage()" title="Toggle language" aria-label="Toggle language">
+          <i class="fas fa-language"></i>
+        </button>
+        <span class="lang-info">
+          <span data-i18n="language-label">Language</span>
+          <strong class="lang-value">English</strong>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Cache i18n elements
+      const i18nElements = document.querySelectorAll('[data-i18n]');
+      const i18nTitle = document.querySelector('[data-i18n-title]');
+
+      // Add ripple effect to specific buttons
+      document.querySelectorAll('.theme-toggle, .lang-toggle').forEach(button => {
+        button.addEventListener('click', function (e) {
+          const rect = this.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple');
+          ripple.style.left = `${x}px`;
+          ripple.style.top = `${y}px`;
+
+          this.appendChild(ripple);
+
+          setTimeout(() => {
+            ripple.remove();
+          }, 600);
+        });
+      });
+
+      // Initialize settings and converter
+      initSettings();
+      setupConverter();
+    });
+
+    const body = document.body;
+    const themeToggle = document.querySelector('.theme-toggle i');
+    const themeValue = document.querySelector('.theme-value');
+    const langValue = document.querySelector('.lang-value');
+    let currentLang = safeGetItem('language', 'en');
+
+    const translations = {
+      en: {
+        "web-title": "Length Converter - LinkHub by SynthCode",
+        "title": "Length Converter",
+        "theme-label": "Theme",
+        "language-label": "Language",
+        "theme-light": "Light",
+        "theme-dark": "Dark",
+        "lang-name": "English",
+        "input-label": "Enter value:",
+        "output-label": "Convert to:",
+        "result-placeholder": "Result will appear here",
+        "back": "Back to LinkHub",
+        "mm": "Millimeter (mm)",
+        "cm": "Centimeter (cm)",
+        "in": "Inch (in)",
+        "dm": "Decimeter (dm)",
+        "ft": "Foot (ft)",
+        "m": "Meter (m)",
+        "km": "Kilometer (km)",
+        "switch": "Switch"
+      },
+      id: {
+        "web-title": "Konversi Panjang - LinkHub oleh SynthCode",
+        "title": "Konversi Panjang",
+        "theme-label": "Tema",
+        "language-label": "Bahasa",
+        "theme-light": "Terang",
+        "theme-dark": "Gelap",
+        "lang-name": "Indonesia",
+        "input-label": "Masukkan nilai:",
+        "output-label": "Konversi ke:",
+        "result-placeholder": "Hasil akan muncul di sini",
+        "back": "Kembali ke LinkHub",
+        "mm": "Milimeter (mm)",
+        "cm": "Sentimeter (cm)",
+        "in": "Inci (in)",
+        "dm": "Desimeter (dm)",
+        "ft": "Kaki (ft)",
+        "m": "Meter (m)",
+        "km": "Kilometer (km)",
+        "switch": "Tukar"
+      }
+    };
+
+    const conversionFactors = {
+      mm: 0.001,
+      cm: 0.01,
+      in: 0.0254,
+      dm: 0.1,
+      ft: 0.3048,
+      m: 1,
+      km: 1000
+    };
+
+    function safeGetItem(key, defaultValue) {
+      try {
+        return localStorage.getItem(key) || defaultValue;
+      } catch (e) {
+        console.warn('localStorage unavailable:', e);
+        return defaultValue;
+      }
+    }
+
+    function safeSetItem(key, value) {
+      try {
+        localStorage.setItem(key, value);
+      } catch (e) {
+        console.warn('Cannot set localStorage:', e);
+      }
+    }
+
+    function initSettings() {
+      const savedTheme = safeGetItem('theme', 'light');
+      if (savedTheme === 'dark') {
+        body.classList.add('dark-theme');
+        themeToggle.classList.remove('fa-moon');
+        themeToggle.classList.add('fa-sun');
+      }
+      updateLanguage();
+    }
+
+    function toggleTheme() {
+      body.classList.toggle('dark-theme');
+      const isDark = body.classList.contains('dark-theme');
+      themeToggle.classList.toggle('fa-moon', !isDark);
+      themeToggle.classList.toggle('fa-sun', isDark);
+      safeSetItem('theme', isDark ? 'dark' : 'light');
+      updateLanguage();
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'id' ? 'en' : 'id';
+      safeSetItem('language', currentLang);
+      updateLanguage();
+    }
+
+    function updateLanguage() {
+      const t = translations[currentLang] || translations.en;
+      const isDark = body.classList.contains('dark-theme');
+      document.documentElement.lang = currentLang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t[key] || translations.en[key] || key;
+      });
+
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        if (t[key] || translations.en[key]) {
+          document.title = t[key] || translations.en[key];
+        }
+      });
+
+      themeValue.textContent = isDark ? (t["theme-dark"] || translations.en["theme-dark"]) : (t["theme-light"] || translations.en["theme-light"]);
+      langValue.textContent = t["lang-name"] || translations.en["lang-name"];
+    }
+
+    function setupConverter() {
+      const inputValue = document.getElementById('input-value');
+      const inputUnit = document.getElementById('input-unit');
+      const outputUnit = document.getElementById('output-unit');
+      const result = document.getElementById('result');
+
+      // Set default units
+      inputUnit.value = 'm';
+      outputUnit.value = 'cm';
+
+      let timeout;
+      function debounceConvert() {
+        clearTimeout(timeout);
+        timeout = setTimeout(convert, 300);
+      }
+
+      function convert() {
+        const value = parseFloat(inputValue.value);
+        const fromUnit = inputUnit.value;
+        const toUnit = outputUnit.value;
+
+        if (isNaN(value) || value < 0) {
+          result.textContent = translations[currentLang]["result-placeholder"] || translations.en["result-placeholder"];
+          return;
+        }
+
+        const valueInMeters = value * conversionFactors[fromUnit];
+        const convertedValue = valueInMeters / conversionFactors[toUnit];
+        const formattedValue = Number(convertedValue.toFixed(4)).toString();
+        result.textContent = `${formattedValue} ${toUnit}`;
+      }
+
+      function swapUnits() {
+        const temp = inputUnit.value;
+        inputUnit.value = outputUnit.value;
+        outputUnit.value = temp;
+        convert();
+      }
+
+      inputValue.addEventListener('input', debounceConvert);
+      inputUnit.addEventListener('change', convert);
+      outputUnit.addEventListener('change', convert);
+      window.swapUnits = swapUnits; // Expose swapUnits globally for button onclick
+    }
+  </script>
+</body>
+</html>
